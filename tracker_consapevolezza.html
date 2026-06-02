@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker Consapevolezza - Lamentele, Giudizi & Gossip</title>
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --text: #2d3748;
+            --muted: #718096;
+            --lamentela: #e53e3e;
+            --giudizio: #dd6b20;
+            --gossip: #805ad5;
+            --success: #38a169;
+            --wellness: #0ea5e9;
+            --gold: #d69e2e;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+        header p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .date-bar {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .date-bar button {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .date-bar button:hover { background: #edf2f7; }
+        .date-bar span {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.15s;
+        }
+        .card:active { transform: scale(0.98); }
+        .card-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .card-info p {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+        .card-counter {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card-counter .count {
+            font-size: 2rem;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: center;
+        }
+        .card-counter button {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .card-counter button:active { transform: scale(0.9); }
+        .card-counter button.minus { background: #cbd5e0; color: var(--text); }
+        .card.lamentela .count { color: var(--lamentela); }
+        .card.lamentela .plus { background: var(--lamentela); }
+        .card.giudizio .count { color: var(--giudizio); }
+        .card.giudizio .plus { background: var(--giudizio); }
+        .card.gossip .count { color: var(--gossip); }
+        .card.gossip .plus { background: var(--gossip); }
+
+        .stats {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .stats h2 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        .stat-row:last-child { margin-bottom: 0; }
+        .stat-bar {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 0 12px;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        .stat-bar-fill.lamentela { background: var(--lamentela); }
+        .stat-bar-fill.giudizio { background: var(--giudizio); }
+        .stat-bar-fill.gossip { background: var(--gossip); }
+
+        /* === STREAK PANEL === */
+        .streak-panel {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            color: white;
+        }
+        .streak-panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .streak-panel .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+        .streak-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .streak-number {
+            text-align: center;
+        }
+        .streak-number .number {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .streak-number .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        .streak-goal {
+            text-align: center;
+        }
+        .streak-goal .slash {
+            font-size: 2rem;
+            opacity: 0.6;
+        }
+        .streak-goal .goal-num {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .streak-goal .goal-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .streak-progress-ring {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        .streak-progress-ring svg {
+            transform: rotate(-90deg);
+        }
+        .streak-progress-ring .ring-bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.2);
+            stroke-width: 8;
+        }
+        .streak-progress-ring .ring-fill {
+            fill: none;
+            stroke: rgba(255,255,255,0.9);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s ease;
+        }
+        .streak-progress-ring .ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .streak-days-grid {
+            display: grid;
+            grid-template-columns: repeat(21, 1fr);
+            gap: 3px;
+            margin-bottom: 16px;
+        }
+        .streak-day {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .streak-day.empty {
+            background: rgba(255,255,255,0.15);
+        }
+        .streak-day.done {
+            background: rgba(255,255,255,0.9);
+            color: var(--success);
+            box-shadow: 0 0 8px rgba(255,255,255,0.4);
+        }
+        .streak-day.current {
+            background: rgba(255,255,255,0.5);
+            border: 2px solid white;
+            animation: pulse 1.5s infinite;
+        }
+        .streak-day.broken {
+            background: var(--lamentela);
+            opacity: 0.8;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .streak-status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .streak-status.perfect {
+            background: rgba(255,255,255,0.2);
+        }
+        .streak-status.warning {
+            background: rgba(221, 107, 32, 0.3);
+        }
+        .streak-status.danger {
+            background: rgba(229, 62, 62, 0.3);
+        }
+        .streak-status.completed {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            color: #2d3748;
+            animation: glow 2s infinite;
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+        }
+        .streak-best {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        .streak-best strong {
+            font-size: 1.1rem;
+        }
+        .streak-arrow {
+            font-size: 1.2rem;
+            margin-left: 4px;
+        }
+        .streak-arrow.up { color: #ffd700; }
+        .streak-arrow.down { color: #fc8181; }
+
+
+        .wellness-panel {
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            color: white;
+        }
+        .wellness-panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .wellness-score {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .wellness-score .score-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .wellness-score .score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        .wellness-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .wellness-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .wellness-bar-item span:first-child {
+            min-width: 110px;
+        }
+        .wellness-bar-track {
+            flex: 1;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .wellness-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.9);
+            transition: width 0.6s ease;
+        }
+        .wellness-bar-item span:last-child {
+            min-width: 45px;
+            text-align: right;
+            font-weight: 600;
+        }
+        .wellness-insight {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .affirmations-panel {
+            background: linear-gradient(135deg, #d69e2e 0%, #ed8936 100%);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            color: white;
+        }
+        .affirmations-panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .affirmations-panel .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+        .affirmation-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .affirmation-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .affirmation-meta {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+        .timer-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .timer-bar-fill {
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            border-radius: 3px;
+            transition: width 1s linear;
+            width: 0%;
+        }
+        .timer-display {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 12px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .affirmation-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .affirmation-controls button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .affirmation-controls button:hover {
+            background: rgba(255,255,255,0.35);
+        }
+        .affirmation-controls button.active {
+            background: rgba(255,255,255,0.9);
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .affirmation-list {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .affirmation-list h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        .affirmation-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .affirmation-tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .affirmation-tag:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .affirmation-tag.active {
+            background: rgba(255,255,255,0.9);
+            color: var(--gold);
+            font-weight: 600;
+            border-color: white;
+        }
+        .affirmation-counter {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .affirmation-counter strong {
+            font-size: 1.2rem;
+        }
+
+        .history {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .history h2 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 0.9rem;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-badges {
+            display: flex;
+            gap: 8px;
+        }
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+        .badge.lamentela { background: var(--lamentela); }
+        .badge.giudizio { background: var(--giudizio); }
+        .badge.gossip { background: var(--gossip); }
+        .badge.affirmation { background: var(--gold); }
+
+        .reset-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: var(--muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .reset-btn:hover { background: #fff5f5; color: var(--lamentela); border-color: var(--lamentela); }
+
+        .info-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .info-section h2 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .info-section p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        .info-section ul {
+            margin-top: 8px;
+            padding-left: 18px;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        .info-section li {
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            header h1 { font-size: 1.3rem; }
+            .card { padding: 18px; }
+            .card-counter .count { font-size: 1.6rem; }
+            .wellness-score .score-number { font-size: 2.8rem; }
+            .affirmation-text { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧘 Tracker Consapevolezza</h1>
+            <p>Monitora lamentele, giudizi e gossip giornalieri</p>
+        </header>
+
+        <div class="date-bar">
+            <button onclick="changeDate(-1)">◀</button>
+            <span id="currentDate"></span>
+            <button onclick="changeDate(1)">▶</button>
+        </div>
+
+        <!-- === STREAK PANEL === -->
+        <div class="streak-panel">
+            <h2>🔥 Serie di Giorni Puliti</h2>
+            <p class="subtitle">Obiettivo: 21 giorni consecutivi senza lamentele, giudizi o gossip</p>
+
+            <div class="streak-main">
+                <div class="streak-number">
+                    <div class="number" id="streakCurrent">0</div>
+                    <div class="label">giorni consecutivi</div>
+                </div>
+                <div class="streak-goal">
+                    <div class="slash">/</div>
+                    <div class="goal-num">21</div>
+                    <div class="goal-label">obiettivo</div>
+                </div>
+                <div class="streak-progress-ring">
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                        <circle class="ring-bg" cx="50" cy="50" r="42"/>
+                        <circle class="ring-fill" id="streakRing" cx="50" cy="50" r="42" 
+                            stroke-dasharray="264" stroke-dashoffset="264"/>
+                    </svg>
+                    <div class="ring-text" id="streakPct">0%</div>
+                </div>
+            </div>
+
+            <div class="streak-days-grid" id="streakGrid"></div>
+
+            <div class="streak-status" id="streakStatus">
+                Inizia oggi! Ogni giorno senza pensieri negativi è una vittoria.
+            </div>
+
+            <div class="streak-best">
+                🥇 Record personale: <strong id="streakBest">0</strong> giorni 
+                <span class="streak-arrow" id="streakArrow"></span>
+            </div>
+        </div>
+
+<div class="cards">
+            <div class="card lamentela">
+                <div class="card-info">
+                    <h3>😤 Lamentele</h3>
+                    <p>Quando ti lamenti di qualcosa</p>
+                </div>
+                <div class="card-counter">
+                    <button class="minus" onclick="updateCount('lamentele', -1)">−</button>
+                    <div class="count" id="count-lamentele">0</div>
+                    <button class="plus" onclick="updateCount('lamentele', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="card giudizio">
+                <div class="card-info">
+                    <h3>⚖️ Giudizi</h3>
+                    <p>Quando giudichi qualcuno o qualcosa</p>
+                </div>
+                <div class="card-counter">
+                    <button class="minus" onclick="updateCount('giudizi', -1)">−</button>
+                    <div class="count" id="count-giudizi">0</div>
+                    <button class="plus" onclick="updateCount('giudizi', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="card gossip">
+                <div class="card-info">
+                    <h3>👄 Gossip</h3>
+                    <p>Quando parli di qualcuno alle spalle</p>
+                </div>
+                <div class="card-counter">
+                    <button class="minus" onclick="updateCount('gossip', -1)">−</button>
+                    <div class="count" id="count-gossip">0</div>
+                    <button class="plus" onclick="updateCount('gossip', 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="wellness-panel">
+            <h2>✨ Impatto sul Benessere</h2>
+            <div class="wellness-score">
+                <div class="score-number" id="wellnessScore">100</div>
+                <div class="score-label">Indice di Benessere Psicofisico</div>
+            </div>
+            <div class="wellness-bars">
+                <div class="wellness-bar-item">
+                    <span>😌 Serenità</span>
+                    <div class="wellness-bar-track"><div class="wellness-bar-fill" id="bar-serenity"></div></div>
+                    <span id="pct-serenity">100%</span>
+                </div>
+                <div class="wellness-bar-item">
+                    <span>⚡ Energia Vitale</span>
+                    <div class="wellness-bar-track"><div class="wellness-bar-fill" id="bar-energy"></div></div>
+                    <span id="pct-energy">100%</span>
+                </div>
+                <div class="wellness-bar-item">
+                    <span>🧠 Chiarezza Mentale</span>
+                    <div class="wellness-bar-track"><div class="wellness-bar-fill" id="bar-clarity"></div></div>
+                    <span id="pct-clarity">100%</span>
+                </div>
+                <div class="wellness-bar-item">
+                    <span>❤️ Qualità Relazioni</span>
+                    <div class="wellness-bar-track"><div class="wellness-bar-fill" id="bar-relations"></div></div>
+                    <span id="pct-relations">100%</span>
+                </div>
+                <div class="wellness-bar-item">
+                    <span>🌊 Frequenza Vibrazionale</span>
+                    <div class="wellness-bar-track"><div class="wellness-bar-fill" id="bar-vibration"></div></div>
+                    <span id="pct-vibration">100%</span>
+                </div>
+            </div>
+            <div class="wellness-insight" id="wellnessInsight">
+                Ottimo! Oggi stai coltivando un'energia positiva. Continua così! 🌟
+            </div>
+        </div>
+
+        <div class="affirmations-panel">
+            <h2>🌟 Affermazioni Potenti</h2>
+            <p class="subtitle">Ripeti mentalmente o ad alta voce per 5 minuti per elevare la tua frequenza vibrazionale</p>
+
+            <div class="affirmation-card">
+                <div class="affirmation-text" id="affirmationText">Io sono Dio manifestato in forma fisica</div>
+                <div class="affirmation-meta" id="affirmationMeta">Frequenza: 700 Hz | Coscienza: Illuminazione</div>
+                <div class="timer-bar"><div class="timer-bar-fill" id="timerBar"></div></div>
+                <div class="timer-display" id="timerDisplay">05:00</div>
+                <div class="affirmation-controls">
+                    <button id="btnStart" onclick="startTimer()">▶️ Inizia</button>
+                    <button id="btnPause" onclick="pauseTimer()" style="display:none">⏸️ Pausa</button>
+                    <button id="btnReset" onclick="resetTimer()">🔄 Azzera</button>
+                    <button onclick="nextAffirmation()">⏭️ Prossima</button>
+                    <button onclick="prevAffirmation()">⏮️ Precedente</button>
+                </div>
+            </div>
+
+            <div class="affirmation-list">
+                <h3>🎯 Scegli un'intenzione:</h3>
+                <div class="affirmation-tags" id="affirmationTags"></div>
+            </div>
+
+            <div class="affirmation-counter">
+                Sessioni completate oggi: <strong id="affirmationCount">0</strong> | 
+                Minuti totali: <strong id="affirmationMinutes">0</strong>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>📊 Distribuzione Oggi</h2>
+            <div class="stat-row">
+                <span>Lamentele</span>
+                <div class="stat-bar"><div class="stat-bar-fill lamentela" id="bar-lamentele"></div></div>
+                <span id="pct-lamentele">0%</span>
+            </div>
+            <div class="stat-row">
+                <span>Giudizi</span>
+                <div class="stat-bar"><div class="stat-bar-fill giudizio" id="bar-giudizi"></div></div>
+                <span id="pct-giudizi">0%</span>
+            </div>
+            <div class="stat-row">
+                <span>Gossip</span>
+                <div class="stat-bar"><div class="stat-bar-fill gossip" id="bar-gossip"></div></div>
+                <span id="pct-gossip">0%</span>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>🧬 Perché conta?</h2>
+            <p>Ridurre lamentele, giudizi e gossip ha effetti misurabili sul benessere:</p>
+            <ul>
+                <li><strong>Riduzione dello stress:</strong> abbassa i livelli di cortisolo fino al 23%</li>
+                <li><strong>Miglioramento immunitario:</strong> aumenta l'attività delle cellule NK (natural killer)</li>
+                <li><strong>Pressione sanguigna:</strong> riduzione media di 4-8 mmHg</li>
+                <li><strong>Qualità del sonno:</strong> miglioramento del 30% della durata del sonno REM</li>
+                <li><strong>Frequenza cardiaca:</strong> aumento della variabilità (HRV), indicatore di resilienza</li>
+                <li><strong>Equilibrio emotivo:</strong> riduzione della reattività dell'amigdala del 15-20%</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h2>🌈 Frequenza Vibrazionale</h2>
+            <p>Ogni pensiero e ogni parola emette una frequenza. Secondo studi sulle frequenze di solfeggio e la ricerca di David Hawkins (Scala dei Livelli di Coscienza):</p>
+            <ul>
+                <li><strong>Livelli bassi (20-200 Hz):</strong> vergogna, colpa, paura, rabbia — associati a lamentele e giudizi</li>
+                <li><strong>Livelli medi (200-400 Hz):</strong> coraggio, neutralità, volontà, ragione</li>
+                <li><strong>Livelli alti (400-700 Hz):</strong> amore, gioia, pace, illuminazione — raggiungibili riducendo i pensieri negativi</li>
+                <li><strong>Effetto pratico:</strong> ogni giorno senza lamentele/giudizi eleva la tua frequenza media di circa 15-25 punti</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h2>💫 Potere delle Affermazioni</h2>
+            <p>Ripetere affermazioni positive per 5 minuti al giorno crea nuovi percorsi neurali nel cervello (neuroplasticità):</p>
+            <ul>
+                <li><strong>21 giorni:</strong> si formano nuovi pattern neurali stabili</li>
+                <li><strong>40 giorni:</strong> le affermazioni diventano credenze subconscie</li>
+                <li><strong>90 giorni:</strong> trasformazione identitaria completa</li>
+                <li><strong>Frequenza 528 Hz:</strong> nota del "miracolo", ripara il DNA e promuove la guarigione</li>
+                <li><strong>Effetto placebo potenziato:</strong> il cervello non distingue tra immaginazione e realtà</li>
+                <li><strong>Coerenza cardiaca:</strong> le affermazioni positive sincronizzano cuore e cervello</li>
+            </ul>
+        </div>
+
+        <div class="history">
+            <h2>📅 Ultimi 7 Giorni</h2>
+            <div id="historyList"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetToday()">🗑️ Azzera i contatori di oggi</button>
+        <button class="reset-btn reset-all" onclick="resetAll()" style="margin-top:10px; background:#fff5f5; color:var(--lamentela); border-color:var(--lamentela);">💥 AZZERA TUTTO (cancella tutta la cronologia)</button>
+    </div>
+
+    <script>
+        // ============ DATI E GESTIONE ============
+        let currentDate = new Date();
+        let currentAffirmationIndex = 0;
+        let timerInterval = null;
+        let timerSeconds = 300; // 5 minuti
+        let isTimerRunning = false;
+        let timerPaused = false;
+        let initialTimerSeconds = 300;
+
+        const affirmations = [
+            // AMORE (3 affermazioni)
+            { text: "Io sono Amore puro e incondizionato", freq: 650, level: "Gioia", category: "amore" },
+            { text: "Io sono il cuore dell'universo che batte in me", freq: 640, level: "Amore", category: "amore" },
+            { text: "L'amore scorre attraverso di me come un fiume infinito", freq: 630, level: "Amore", category: "amore" },
+
+            // ABBONDANZA (3 affermazioni)
+            { text: "Io sono Abbondanza e Prosperità infinita", freq: 600, level: "Pace", category: "abbondanza" },
+            { text: "Il denaro fluisce verso di me con facilità e gioia", freq: 590, level: "Accettazione", category: "abbondanza" },
+            { text: "Ogni mia risorsa si moltiplica in modo esponenziale", freq: 610, level: "Ragione", category: "abbondanza" },
+
+            // AUTOSTIMA (3 affermazioni)
+            { text: "Io sono un essere speciale e mi amo così come sono", freq: 550, level: "Amore", category: "autostima" },
+            { text: "Io sono degno di ogni bene, ogni gioia, ogni successo", freq: 560, level: "Accettazione", category: "autostima" },
+            { text: "La mia unicità è il mio superpotere più grande", freq: 570, level: "Coraggio", category: "autostima" },
+
+            // GUARIGIONE (3 affermazioni)
+            { text: "Io sono la guarigione che sto cercando", freq: 528, level: "Volontà", category: "guarigione" },
+            { text: "Ogni cellula del mio corpo risuona di salute perfetta", freq: 540, level: "Amore", category: "guarigione" },
+            { text: "Il mio corpo si rigenera e ringiovanisce ogni istante", freq: 535, level: "Gioia", category: "guarigione" },
+
+            // PACE (3 affermazioni)
+            { text: "Io sono pace che trascende ogni comprensione", freq: 600, level: "Pace", category: "pace" },
+            { text: "La calma divina abita ogni fibra del mio essere", freq: 610, level: "Pace", category: "pace" },
+            { text: "Io sono il silenzio profondo al centro della tempesta", freq: 620, level: "Pace", category: "pace" },
+
+            // FORZA (3 affermazioni)
+            { text: "Io sono forza interiore che supera ogni ostacolo", freq: 500, level: "Coraggio", category: "forza" },
+            { text: "Nulla e nessuno può spegnere il mio fuoco interiore", freq: 520, level: "Volontà", category: "forza" },
+            { text: "Io sono resilienza incarnata, risorgo sempre più forte", freq: 530, level: "Coraggio", category: "forza" },
+
+            // GRATITUDINE (3 affermazioni)
+            { text: "Io sono gratitudine infinita per ogni istante", freq: 540, level: "Gioia", category: "gratitudine" },
+            { text: "Ogni respiro è un dono che celebro con gioia", freq: 550, level: "Gioia", category: "gratitudine" },
+            { text: "La gratitudine è il magnete della mia realtà perfetta", freq: 560, level: "Amore", category: "gratitudine" },
+
+            // DIVINITA (3 affermazioni)
+            { text: "Io sono Dio manifestato in forma fisica", freq: 700, level: "Illuminazione", category: "divinita" },
+            { text: "Io sono l'Uno che si esprime attraverso questa forma", freq: 690, level: "Illuminazione", category: "divinita" },
+            { text: "La divinità scorre in ogni mio pensiero, parola e azione", freq: 680, level: "Illuminazione", category: "divinita" },
+
+            // LUCE (3 affermazioni)
+            { text: "Io sono luce che dissolve ogni oscurità", freq: 620, level: "Amore", category: "luce" },
+            { text: "La mia presenza illumina ogni spazio che attraverso", freq: 610, level: "Amore", category: "luce" },
+            { text: "Io sono il sole interiore che non tramonta mai", freq: 630, level: "Gioia", category: "luce" },
+
+            // SAGGEZZA (3 affermazioni)
+            { text: "Io sono saggezza che fluisce dall'universo", freq: 560, level: "Ragione", category: "saggezza" },
+            { text: "Ogni risposta che cerco risiede già dentro di me", freq: 570, level: "Ragione", category: "saggezza" },
+            { text: "La conoscenza universale si rivela attraverso la mia intuizione", freq: 580, level: "Ragione", category: "saggezza" },
+
+            // GIOIA (3 affermazioni)
+            { text: "Io sono gioia che irradia ogni mia cellula", freq: 640, level: "Gioia", category: "gioia" },
+            { text: "La felicità è il mio stato naturale e permanente", freq: 650, level: "Gioia", category: "gioia" },
+            { text: "Io danzo con l'universo in un'eterna celebrazione", freq: 660, level: "Gioia", category: "gioia" },
+
+            // CREAZIONE (3 affermazioni)
+            { text: "Io sono creatore della mia realtà perfetta", freq: 580, level: "Ragione", category: "creazione" },
+            { text: "Ogni mio desiderio si materializza con velocità divina", freq: 590, level: "Volontà", category: "creazione" },
+            { text: "La mia immaginazione è il laboratorio della realtà", freq: 600, level: "Ragione", category: "creazione" },
+
+            // BELLEZZA (3 affermazioni)
+            { text: "Io sono bellezza che risplende in ogni atomo", freq: 580, level: "Amore", category: "bellezza" },
+            { text: "La perfezione dell'universo si riflette nel mio essere", freq: 590, level: "Amore", category: "bellezza" },
+            { text: "Io sono opera d'arte vivente, unica e irripetibile", freq: 570, level: "Accettazione", category: "bellezza" },
+
+            // SUCCESSO (3 affermazioni)
+            { text: "Io sono successo che si manifesta ora", freq: 520, level: "Accettazione", category: "successo" },
+            { text: "Ogni mio progetto fiorisce con risultati straordinari", freq: 530, level: "Volontà", category: "successo" },
+            { text: "Il successo mi insegue, io non lo devo inseguire", freq: 540, level: "Accettazione", category: "successo" },
+
+            // ARMONIA (3 affermazioni)
+            { text: "Io sono armonia con tutto ciò che esiste", freq: 610, level: "Pace", category: "armonia" },
+            { text: "L'universo conspira sempre a mio favore", freq: 600, level: "Pace", category: "armonia" },
+            { text: "Io fluttuo nella sincronicità perfetta della vita", freq: 620, level: "Gioia", category: "armonia" },
+
+            // POTERE (3 affermazioni)
+            { text: "Io sono potere che trasforma il mondo", freq: 590, level: "Volontà", category: "potere" },
+            { text: "La mia volontà è la forza creativa dell'universo", freq: 580, level: "Volontà", category: "potere" },
+            { text: "Io comando alla realtà e la realtà mi obbedisce", freq: 600, level: "Volontà", category: "potere" },
+
+            // PROTEZIONE (3 affermazioni)
+            { text: "Io sono protezione divina in ogni momento", freq: 570, level: "Amore", category: "protezione" },
+            { text: "Uno scudo di luce mi avvolge ovunque vada", freq: 560, level: "Amore", category: "protezione" },
+            { text: "Sono sempre al posto giusto nel momento giusto", freq: 550, level: "Accettazione", category: "protezione" },
+
+            // CREATIVITA (3 affermazioni)
+            { text: "Io sono creatività che sgorga senza fine", freq: 550, level: "Ragione", category: "creativita" },
+            { text: "Le idee geniali mi trovano senza sforzo", freq: 560, level: "Ragione", category: "creativita" },
+            { text: "Io sono canale dell'inspirazione universale", freq: 570, level: "Ragione", category: "creativita" },
+
+            // COMPASSIONE (3 affermazioni)
+            { text: "Io sono compassione per me stesso e per tutti", freq: 630, level: "Amore", category: "compassione" },
+            { text: "Il perdono libera ogni mia cellula da ogni peso", freq: 620, level: "Amore", category: "compassione" },
+            { text: "Io vedo la divinità in ogni essere che incontro", freq: 640, level: "Amore", category: "compassione" },
+
+            // VERITA (3 affermazioni)
+            { text: "Io sono verità che libera ogni catena", freq: 590, level: "Ragione", category: "verita" },
+            { text: "La mia autenticità è il mio più grande dono al mondo", freq: 580, level: "Ragione", category: "verita" },
+            { text: "Io vivo nella verità e la verità mi rende libero", freq: 600, level: "Ragione", category: "verita" },
+
+            // ETERNITA (3 affermazioni)
+            { text: "Io sono eterno, immortale, universale", freq: 700, level: "Illuminazione", category: "eternita" },
+            { text: "Il tempo è illusione, io esisto al di là di esso", freq: 690, level: "Illuminazione", category: "eternita" },
+            { text: "La mia essenza è stata, è e sarà per sempre", freq: 680, level: "Illuminazione", category: "eternita" },
+
+            // MAGNETISMO (3 affermazioni)
+            { text: "Io sono magnete di esperienze meravigliose", freq: 560, level: "Gioia", category: "magnetismo" },
+            { text: "Persone, opportunità e gioie mi trovano ovunque", freq: 570, level: "Gioia", category: "magnetismo" },
+            { text: "La mia energia attrae solo ciò che mi eleva", freq: 580, level: "Amore", category: "magnetismo" },
+
+            // CALMA (3 affermazioni)
+            { text: "Io sono calma che domina ogni tempesta", freq: 600, level: "Pace", category: "calma" },
+            { text: "Il mio centro è inamovibile come una montagna", freq: 610, level: "Pace", category: "calma" },
+            { text: "Respiro pace, espiro tensione, sono equilibrio", freq: 590, level: "Pace", category: "calma" },
+
+            // RICCHEZZA (3 affermazioni)
+            { text: "Io sono ricchezza che fluisce in abbondanza", freq: 530, level: "Accettazione", category: "ricchezza" },
+            { text: "Il mio conto bancario riflette la mia infinita ricchezza interiore", freq: 540, level: "Accettazione", category: "ricchezza" },
+            { text: "La ricchezza è il mio diritto divino di nascita", freq: 550, level: "Accettazione", category: "ricchezza" },
+
+            // SALUTE (3 affermazioni)
+            { text: "Io sono salute perfetta in corpo, mente e spirito", freq: 580, level: "Amore", category: "salute" },
+            { text: "La vitalità scorre in me come un fiume di luce", freq: 570, level: "Amore", category: "salute" },
+            { text: "Ogni organo del mio corpo funziona in perfezione divina", freq: 590, level: "Amore", category: "salute" }
+        ];
+
+        const categories = {
+            "tutte": "✨ Tutte",
+            "amore": "❤️ Amore",
+            "abbondanza": "💰 Abbondanza", 
+            "autostima": "🌟 Autostima",
+            "guarigione": "🩹 Guarigione",
+            "pace": "🕊️ Pace",
+            "forza": "💪 Forza",
+            "gratitudine": "🙏 Gratitudine",
+            "divinita": "🔱 Divinità",
+            "luce": "💡 Luce",
+            "saggezza": "📖 Saggezza",
+            "gioia": "😊 Gioia",
+            "creazione": "🎨 Creazione",
+            "bellezza": "💎 Bellezza",
+            "successo": "🏆 Successo",
+            "armonia": "🎵 Armonia",
+            "potere": "⚡ Potere",
+            "protezione": "🛡️ Protezione",
+            "creativita": "🎭 Creatività",
+            "compassione": "🤍 Compassione",
+            "verita": "🔮 Verità",
+            "eternita": "♾️ Eternità",
+            "magnetismo": "🧲 Magnetismo",
+            "calma": "🌊 Calma",
+            "ricchezza": "💎 Ricchezza",
+            "salute": "🌿 Salute"
+        };
+
+        let currentCategory = "tutte";
+        let filteredAffirmations = [...affirmations];
+
+        function formatDate(d) {
+            return d.toISOString().split('T')[0];
+        }
+
+        function displayDate(d) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return d.toLocaleDateString('it-IT', options);
+        }
+
+        function loadData() {
+            const data = localStorage.getItem('trackerData');
+            return data ? JSON.parse(data) : {};
+        }
+
+        function saveData(data) {
+            localStorage.setItem('trackerData', JSON.stringify(data));
+        }
+
+        function getDayData(dateStr) {
+            const data = loadData();
+            if (!data[dateStr]) {
+                data[dateStr] = { lamentele: 0, giudizi: 0, gossip: 0, affirmations: 0, affirmationMinutes: 0 };
+                saveData(data);
+            }
+            return data[dateStr];
+        }
+
+        function updateCount(type, delta) {
+            const key = formatDate(currentDate);
+            const data = loadData();
+            if (!data[key]) data[key] = { lamentele: 0, giudizi: 0, gossip: 0, affirmations: 0, affirmationMinutes: 0 };
+            data[key][type] = Math.max(0, data[key][type] + delta);
+            saveData(data);
+            render();
+        }
+
+        function resetToday() {
+            if (!confirm('Sei sicuro di voler azzerare i contatori di oggi?')) return;
+            const key = formatDate(currentDate);
+            const data = loadData();
+            data[key] = { lamentele: 0, giudizi: 0, gossip: 0, affirmations: 0, affirmationMinutes: 0 };
+            saveData(data);
+            render();
+        }
+
+        function resetAll() {
+            if (!confirm('⚠️ ATTENZIONE! Questo cancellerà TUTTA la cronologia, tutti i dati e il record personale. Sei assolutamente sicuro?')) return;
+            if (!confirm('🚨 CONFERMA FINALE: Tutto verrà cancellato irrevocabilmente. Procedere?')) return;
+            localStorage.removeItem('trackerData');
+            localStorage.removeItem('bestStreakEver');
+            localStorage.removeItem('previousBestStreak');
+            alert('✅ Tutti i dati sono stati cancellati. Ricarica la pagina per iniziare da zero!');
+            location.reload();
+        }
+
+        function calculateAverages() {
+            const data = loadData();
+            const dates = Object.keys(data);
+            if (dates.length === 0) return { lamentele: 0, giudizi: 0, gossip: 0, totalL: 0, totalG: 0, totalGo: 0, days: 0 };
+
+            let totalL = 0, totalG = 0, totalGo = 0;
+            let activeDays = 0;
+
+            for (const k of dates) {
+                const day = data[k];
+                if (day) {
+                    totalL += day.lamentele || 0;
+                    totalG += day.giudizi || 0;
+                    totalGo += day.gossip || 0;
+                    // Conta solo i giorni dove c'è stato almeno un'interazione (o contatori o affermazioni)
+                    if ((day.lamentele + day.giudizi + day.gossip + (day.affirmations || 0)) > 0) {
+                        activeDays++;
+                    }
+                }
+            }
+
+            // Se nessun giorno attivo, conta tutti i giorni con dati
+            if (activeDays === 0) activeDays = dates.length;
+
+            const avgL = activeDays > 0 ? (totalL / activeDays).toFixed(1) : '0.0';
+            const avgG = activeDays > 0 ? (totalG / activeDays).toFixed(1) : '0.0';
+            const avgGo = activeDays > 0 ? (totalGo / activeDays).toFixed(1) : '0.0';
+
+            return { 
+                lamentele: avgL, 
+                giudizi: avgG, 
+                gossip: avgGo, 
+                totalL, 
+                totalG, 
+                totalGo, 
+                days: activeDays 
+            };
+        }
+
+        function changeDate(delta) {
+            currentDate.setDate(currentDate.getDate() + delta);
+            if (currentDate > new Date()) {
+                currentDate.setDate(currentDate.getDate() - delta);
+                return;
+            }
+            render();
+        }
+
+        // ============ TIMER AFFERMAZIONI ============
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return m + ':' + s;
+        }
+
+        function updateAffirmationDisplay() {
+            const aff = filteredAffirmations[currentAffirmationIndex];
+            document.getElementById('affirmationText').textContent = aff.text;
+            document.getElementById('affirmationMeta').textContent = 
+                'Frequenza: ' + aff.freq + ' Hz | Coscienza: ' + aff.level;
+        }
+
+        function filterAffirmations(category) {
+            currentCategory = category;
+            if (category === 'tutte') {
+                filteredAffirmations = [...affirmations];
+            } else {
+                filteredAffirmations = affirmations.filter(a => a.category === category);
+            }
+            currentAffirmationIndex = 0;
+            updateAffirmationDisplay();
+            renderTags();
+        }
+
+        function renderTags() {
+            const container = document.getElementById('affirmationTags');
+            container.innerHTML = '';
+            for (const [key, label] of Object.entries(categories)) {
+                const tag = document.createElement('span');
+                tag.className = 'affirmation-tag' + (key === currentCategory ? ' active' : '');
+                tag.textContent = label;
+                tag.onclick = () => filterAffirmations(key);
+                container.appendChild(tag);
+            }
+        }
+
+        function nextAffirmation() {
+            currentAffirmationIndex = (currentAffirmationIndex + 1) % filteredAffirmations.length;
+            updateAffirmationDisplay();
+        }
+
+        function prevAffirmation() {
+            currentAffirmationIndex = (currentAffirmationIndex - 1 + filteredAffirmations.length) % filteredAffirmations.length;
+            updateAffirmationDisplay();
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            timerPaused = false;
+            document.getElementById('btnStart').style.display = 'none';
+            document.getElementById('btnPause').style.display = 'inline-block';
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+                const pct = ((initialTimerSeconds - timerSeconds) / initialTimerSeconds) * 100;
+                document.getElementById('timerBar').style.width = pct + '%';
+
+                if (timerSeconds <= 0) {
+                    completeTimer();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (!isTimerRunning) return;
+            isTimerRunning = false;
+            timerPaused = true;
+            clearInterval(timerInterval);
+            document.getElementById('btnStart').style.display = 'inline-block';
+            document.getElementById('btnStart').textContent = '▶️ Riprendi';
+            document.getElementById('btnPause').style.display = 'none';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 300;
+            initialTimerSeconds = 300;
+            timerPaused = false;
+            document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+            document.getElementById('timerBar').style.width = '0%';
+            document.getElementById('btnStart').textContent = '▶️ Inizia';
+        }
+
+        function completeTimer() {
+            pauseTimer();
+            timerSeconds = 300;
+            initialTimerSeconds = 300;
+            timerPaused = false;
+            document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+            document.getElementById('timerBar').style.width = '0%';
+            document.getElementById('btnStart').textContent = '▶️ Inizia';
+
+            // Salva progresso
+            const key = formatDate(new Date());
+            const data = loadData();
+            if (!data[key]) data[key] = { lamentele: 0, giudizi: 0, gossip: 0, affirmations: 0, affirmationMinutes: 0 };
+            data[key].affirmations = (data[key].affirmations || 0) + 1;
+            data[key].affirmationMinutes = (data[key].affirmationMinutes || 0) + 5;
+            saveData(data);
+
+            alert('🌟 Sessione completata! Hai elevato la tua frequenza vibrazionale di ' + filteredAffirmations[currentAffirmationIndex].freq + ' Hz!');
+            render();
+        }
+
+        // ============ WELLNESS ============
+        function calculateWellness(dayData) {
+            const total = dayData.lamentele + dayData.giudizi + dayData.gossip;
+            let score = 100;
+            score -= dayData.lamentele * 3;
+            score -= dayData.giudizi * 4;
+            score -= dayData.gossip * 5;
+
+            // Bonus affermazioni
+            const affCount = dayData.affirmations || 0;
+            score += affCount * 5;
+            score = Math.max(0, Math.min(100, score));
+
+            const serenity = Math.max(0, Math.min(100, 100 - dayData.lamentele * 8 - dayData.giudizi * 3 + affCount * 3));
+            const energy = Math.max(0, Math.min(100, 100 - total * 5 + affCount * 4));
+            const clarity = Math.max(0, Math.min(100, 100 - dayData.giudizi * 6 - dayData.gossip * 4 + affCount * 5));
+            const relations = Math.max(0, Math.min(100, 100 - dayData.gossip * 10 - dayData.giudizi * 5 + affCount * 2));
+
+            let vibration = 200;
+            vibration -= dayData.lamentele * 5;
+            vibration -= dayData.giudizi * 8;
+            vibration -= dayData.gossip * 10;
+            vibration += (dayData.affirmationMinutes || 0) * 8;
+            vibration = Math.max(20, Math.min(700, vibration));
+            const vibrationPct = Math.min(100, Math.max(0, (vibration - 20) / 680 * 100));
+
+            return { score, serenity, energy, clarity, relations, vibration, vibrationPct };
+        }
+
+        function getInsight(score, total, affCount) {
+            if (total === 0 && (affCount || 0) > 0) return "🌟 Giornata divina! Zero pensieri negativi + affermazioni potenti = frequenza vibrazionale al massimo. Stai creando realtà di luce!";
+            if (total === 0) return "🌟 Giornata perfetta! La tua frequenza vibrazionale è al massimo. Il tuo sistema immunitario, la chiarezza mentale e la qualità delle relazioni ne beneficiano immediatamente.";
+            if (score >= 85) return "✨ Ottimo lavoro! Stai mantenendo un'energia molto positiva. I tuoi livelli di cortisolo sono bassi e la variabilità della frequenza cardiaca (HRV) è ottimale.";
+            if (score >= 70) return "🌱 Buon progresso! Qualche pensiero negativo è normale, ma stai già riducendo lo stress sul tuo sistema nervoso. Prova a fare 3 respiri profondi prima di parlare.";
+            if (score >= 50) return "⚠️ Attenzione. I pensieri negativi stanno accumulando tensione nel corpo. Ricorda: ogni lamentela attiva il sistema di allerta dell'amigdala. Fai una pausa di consapevolezza.";
+            return "🚨 È un giorno difficile. Il tuo corpo sta producendo cortisolo in eccesso. Prenditi 5 minuti per un respiro consapevole: inspira 4 secondi, trattieni 4, espira 6.";
+        }
+
+        // ============ RENDER ============
+        // ============ STREAK LOGIC ============
+        function calculateStreak() {
+            const data = loadData();
+            const dates = Object.keys(data).sort();
+            if (dates.length === 0) return { current: 0, best: 0, history: [], arrow: '' };
+
+            let currentStreak = 0;
+            let bestStreak = 0;
+            let tempStreak = 0;
+            let streakHistory = [];
+            let streakBroken = false;
+
+            // Controlla oggi
+            const today = formatDate(new Date());
+            const todayData = data[today];
+            const todayTotal = todayData ? (todayData.lamentele + todayData.giudizi + todayData.gossip) : 0;
+            const todayClean = todayTotal === 0;
+
+            // Se oggi ha dati registrati ed è sporco, serie interrotta
+            if (todayData && !todayClean) {
+                streakBroken = true;
+            }
+
+            // Conta all'indietro dai giorni precedenti finché trovi giorni puliti consecutivi
+            let consecutiveClean = 0;
+
+            if (todayClean) {
+                consecutiveClean = 1; // Oggi conta come giorno 1
+            }
+
+            // Controlla i giorni precedenti solo se oggi è pulito o non ha dati
+            if (!streakBroken) {
+                for (let i = 1; i < 30; i++) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    const k = formatDate(d);
+                    const day = data[k];
+
+                    if (day) {
+                        const dayTotal = day.lamentele + day.giudizi + day.gossip;
+                        if (dayTotal === 0) {
+                            consecutiveClean++;
+                        } else {
+                            // Giorno sporco trovato, interrompi
+                            break;
+                        }
+                    } else {
+                        // Giorno senza dati = considerato non pulito (non ha completato la sfida)
+                        break;
+                    }
+                }
+            }
+
+            currentStreak = streakBroken ? 0 : consecutiveClean;
+
+            // Calcola il best streak storico
+            tempStreak = 0;
+            for (const k of dates.sort()) {
+                const day = data[k];
+                if (day) {
+                    const dayTotal = day.lamentele + day.giudizi + day.gossip;
+                    if (dayTotal === 0) {
+                        tempStreak++;
+                        bestStreak = Math.max(bestStreak, tempStreak);
+                    } else {
+                        tempStreak = 0;
+                    }
+                }
+            }
+
+            // Salva il best streak nel localStorage per confronto
+            const savedBest = parseInt(localStorage.getItem('bestStreakEver') || '0');
+            if (bestStreak > savedBest) {
+                localStorage.setItem('bestStreakEver', bestStreak.toString());
+            }
+            bestStreak = Math.max(bestStreak, savedBest);
+
+            // Freccia di progresso
+            let arrow = '';
+            if (streakBroken) {
+                arrow = '↓ Serie interrotta oggi';
+            } else if (currentStreak > savedBest && savedBest > 0) {
+                arrow = '↑ Nuovo record!';
+            } else if (currentStreak > 0) {
+                arrow = '↑ In crescita';
+            }
+
+            return { current: currentStreak, best: bestStreak, history: streakHistory, arrow, broken: streakBroken };
+        }
+
+        function renderStreak() {
+            const streak = calculateStreak();
+
+            document.getElementById('streakCurrent').textContent = streak.current;
+            document.getElementById('streakBest').textContent = streak.best;
+
+            const arrowEl = document.getElementById('streakArrow');
+            arrowEl.textContent = streak.arrow;
+            arrowEl.className = 'streak-arrow ' + (streak.arrow.includes('↑') ? 'up' : streak.arrow.includes('↓') ? 'down' : '');
+
+            const pct = Math.min(100, (streak.current / 21) * 100);
+            const circumference = 2 * Math.PI * 42;
+            const offset = circumference - (pct / 100) * circumference;
+            document.getElementById('streakRing').style.strokeDashoffset = offset;
+            document.getElementById('streakPct').textContent = Math.round(pct) + '%';
+
+            const grid = document.getElementById('streakGrid');
+            grid.innerHTML = '';
+
+            // La griglia mostra i giorni della sfida: 1, 2, 3... fino a 21
+            // I giorni completati sono quelli consecutivi puliti
+            for (let dayNum = 1; dayNum <= 21; dayNum++) {
+                const cell = document.createElement('div');
+                cell.className = 'streak-day';
+                cell.textContent = dayNum;
+
+                if (dayNum <= streak.current) {
+                    // Giorno completato con successo
+                    cell.classList.add('done');
+                } else if (dayNum === streak.current + 1 && !streak.broken) {
+                    // Prossimo giorno da completare (oggi)
+                    cell.classList.add('current');
+                } else {
+                    cell.classList.add('empty');
+                }
+
+                grid.appendChild(cell);
+            }
+
+            const statusEl = document.getElementById('streakStatus');
+            if (streak.current >= 21) {
+                statusEl.className = 'streak-status completed';
+                statusEl.textContent = '🏆 OBIETTIVO RAGGIUNTO! Hai completato 21 giorni di pura consapevolezza. Sei una nuova persona!';
+            } else if (streak.broken) {
+                statusEl.className = 'streak-status danger';
+                statusEl.textContent = '💔 Serie interrotta oggi! Hai espresso lamentele, giudizi o gossip. Domani si ricomincia da zero. Non mollare!';
+            } else if (streak.current >= 14) {
+                statusEl.className = 'streak-status perfect';
+                statusEl.textContent = '🔥 Sei a ' + streak.current + ' giorni! Manca pochissimo alla trasformazione completa. Resisti!';
+            } else if (streak.current >= 7) {
+                statusEl.className = 'streak-status perfect';
+                statusEl.textContent = '💪 Ottimo! ' + streak.current + ' giorni consecutivi. La tua mente si sta già riprogrammando.';
+            } else if (streak.current >= 3) {
+                statusEl.className = 'streak-status perfect';
+                statusEl.textContent = '🌱 ' + streak.current + ' giorni! Stai costruendo un nuovo abitudine. Continua così!';
+            } else if (streak.current > 0) {
+                statusEl.className = 'streak-status perfect';
+                statusEl.textContent = '✨ Giorno ' + streak.current + '! Ogni viaggio inizia con un passo. Fino a mezzanotte zero negatività!';
+            } else {
+                statusEl.className = 'streak-status warning';
+                statusEl.textContent = '🎯 Inizia oggi! Entro mezzanotte: zero lamentele, zero giudizi, zero gossip = Giorno 1 completato!';
+            }
+        }
+
+function render() {
+            const key = formatDate(currentDate);
+            const dayData = getDayData(key);
+
+            document.getElementById('currentDate').textContent = displayDate(currentDate);
+            renderStreak();
+            renderAverages();
+            document.getElementById('count-lamentele').textContent = dayData.lamentele;
+            document.getElementById('count-giudizi').textContent = dayData.giudizi;
+            document.getElementById('count-gossip').textContent = dayData.gossip;
+
+            // Wellness
+            const wellness = calculateWellness(dayData);
+            document.getElementById('wellnessScore').textContent = wellness.score;
+
+            document.getElementById('bar-serenity').style.width = wellness.serenity + '%';
+            document.getElementById('pct-serenity').textContent = wellness.serenity + '%';
+            document.getElementById('bar-energy').style.width = wellness.energy + '%';
+            document.getElementById('pct-energy').textContent = wellness.energy + '%';
+            document.getElementById('bar-clarity').style.width = wellness.clarity + '%';
+            document.getElementById('pct-clarity').textContent = wellness.clarity + '%';
+            document.getElementById('bar-relations').style.width = wellness.relations + '%';
+            document.getElementById('pct-relations').textContent = wellness.relations + '%';
+            document.getElementById('bar-vibration').style.width = wellness.vibrationPct + '%';
+            document.getElementById('pct-vibration').textContent = wellness.vibration + ' Hz';
+
+            const total = dayData.lamentele + dayData.giudizi + dayData.gossip;
+            document.getElementById('wellnessInsight').textContent = getInsight(wellness.score, total, dayData.affirmations);
+
+            // Affirmation counter
+            document.getElementById('affirmationCount').textContent = dayData.affirmations || 0;
+            document.getElementById('affirmationMinutes').textContent = dayData.affirmationMinutes || 0;
+
+            // Stats
+            const pct = (val) => total > 0 ? Math.round((val / total) * 100) + '%' : '0%';
+            const width = (val) => total > 0 ? (val / total) * 100 + '%' : '0%';
+
+            document.getElementById('pct-lamentele').textContent = pct(dayData.lamentele);
+            document.getElementById('bar-lamentele').style.width = width(dayData.lamentele);
+            document.getElementById('pct-giudizi').textContent = pct(dayData.giudizi);
+            document.getElementById('bar-giudizi').style.width = width(dayData.giudizi);
+            document.getElementById('pct-gossip').textContent = pct(dayData.gossip);
+            document.getElementById('bar-gossip').style.width = width(dayData.gossip);
+
+            // History
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            const data = loadData();
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const k = formatDate(d);
+                const day = data[k] || { lamentele: 0, giudizi: 0, gossip: 0, affirmations: 0, affirmationMinutes: 0 };
+                const totalDay = day.lamentele + day.giudizi + day.gossip;
+                const w = calculateWellness(day);
+
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                const dateLabel = i === 0 ? 'Oggi' : i === 1 ? 'Ieri' : d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+
+                item.innerHTML = `
+                    <span>${dateLabel}</span>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:0.8rem;color:var(--muted);">Benessere: <strong style="color:${w.score >= 70 ? 'var(--success)' : w.score >= 50 ? 'var(--giudizio)' : 'var(--lamentela)'}">${w.score}</strong></span>
+                        <div class="history-badges">
+                            ${day.affirmations > 0 ? `<span class="badge affirmation">⭐${day.affirmations}</span>` : ''}
+                            ${day.lamentele > 0 ? `<span class="badge lamentela">${day.lamentele}</span>` : ''}
+                            ${day.giudizi > 0 ? `<span class="badge giudizio">${day.giudizi}</span>` : ''}
+                            ${day.gossip > 0 ? `<span class="badge gossip">${day.gossip}</span>` : ''}
+                            ${totalDay === 0 && day.affirmations === 0 ? '<span style="color:#a0aec0;font-size:0.8rem;">—</span>' : ''}
+                        </div>
+                    </div>
+                `;
+                historyList.appendChild(item);
+            }
+        }
+
+        function renderAverages() {
+            const avg = calculateAverages();
+            document.getElementById('avgLamentele').textContent = avg.lamentele;
+            document.getElementById('avgGiudizi').textContent = avg.giudizi;
+            document.getElementById('avgGossip').textContent = avg.gossip;
+            document.getElementById('totalLamentele').textContent = 'Totale: ' + avg.totalL + ' su ' + avg.days + ' giorni';
+            document.getElementById('totalGiudizi').textContent = 'Totale: ' + avg.totalG + ' su ' + avg.days + ' giorni';
+            document.getElementById('totalGossip').textContent = 'Totale: ' + avg.totalGo + ' su ' + avg.days + ' giorni';
+        }
+
+        // Inizializza
+        renderTags();
+        updateAffirmationDisplay();
+        renderStreak();
+        renderAverages();
+        render();
+    </script>
+</body>
+</html>
